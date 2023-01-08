@@ -1,0 +1,59 @@
+# Читаем пути из input.txt, создаем список из пар путей
+def path_list(intup_path):
+    input_list = []
+    with open(intup_path) as f_intpt:
+        for line in f_intpt:
+            input_str = line.strip()
+            input_list.append(input_str.split(' '))
+    return input_list
+
+
+# Формируем пару строк из пары кодов
+def code_str(path_1, path_2):
+    # Получаем текст по первому пути
+    with open(path_1) as f_1:
+       s_1 = f_1.read()
+    #  Получаем текст по второму пути
+    with open(path_2) as f_2:
+        s_2 = f_2.read()
+    return s_1, s_2
+
+
+# Расчет расстояния Левенштейна
+def levenshtein(x, y):
+    def alg(i, j):
+        if i == 0 or j == 0:
+            return max(i, j)
+        elif x[i - 1] == y[j - 1]:
+            return alg(i - 1, j - 1)
+        else:
+            return 1 + min(
+                alg(i, j-1),
+                alg(i-1, j),
+                alg(i-1, j-1)
+            )
+    return alg(len(x), len(y))
+
+
+# Нормируем, вычисляем схожесть
+def comp(str1, str2):
+    d = levenshtein(str1, str2)
+    maxlen = max(len(str1), len(str2))
+    return str((maxlen-d)/maxlen)
+
+
+# Пишем в score.txt
+def write_txt(lst, score_path):
+    with open(score_path, "w") as file:
+        for line in lst:
+            file.write(str(line) + '\n')
+
+
+input_ = r'input.txt'
+scores_ = r'scores.txt'
+list_score = []
+for k in path_list(input_):
+    strs = code_str(k[0], k[1])
+    print(strs)
+    list_score.append(comp(strs[0], strs[1]))
+write_txt(list_score, scores_)
